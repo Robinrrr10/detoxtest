@@ -1,0 +1,430 @@
+Detox
+------
+------
+------
+
+Detox will work in native and react native apps boths.
+It is not mandatory to need react native. It will still support native app
+
+
+Setup:
+------
+-------
+
+Download and install nodejs  //for mac givebrew install node
+
+node --version
+
+npm install -g detox-cli
+
+
+Android setup:
+-------------
+
+java -version
+
+java 1.8 is needed 
+
+download and install android studio
+
+C:\Program Files\Android\Android Studio
+
+
+Set environment variable for below path for ANDROID_HOME and ANDROID_SDK_ROOT
+C:\Users\91897\AppData\Local\Android\Sdk
+
+
+Then also add below path of path variable
+C:\Users\91897\AppData\Local\Android\Sdk\emulator
+C:\Users\91897\AppData\Local\Android\Sdk\tools
+C:\Users\91897\AppData\Local\Android\Sdk\tools\bin
+C:\Users\91897\AppData\Local\Android\Sdk\platform-tools
+
+
+
+sdkmanager --install emulator            // sdkmanager is available under C:\Users\91897\AppData\Local\Android\Sdk\tools\bin
+
+sdkmanager "system-images;android-29;default;x86_64"
+
+sdkmanager --licenses             //This is accept licenses
+
+avdmanager create avd -n Pixel_API_29 -d pixel --package "system-images;android-29;default;x86_64"  //We can give any name instead of Pixel_API_29 
+
+emulator -list-avds          //This is to check available devices
+
+
+In android studio -> tools -> avd manager or device manager -> Here we can see that created device
+
+
+
+emulator -avd nameofdevice
+Eg:
+emulator -avd Pixel_API_29             //This is to launch emulator
+
+In settings -> About emulator device  // we can see the android version
+
+
+
+//Android setup is done
+
+
+---
+
+
+iOS setup
+-----------
+
+document link:
+https://wix.github.io/Detox/docs/introduction/ios-dev-env
+
+
+xcode-select --install          
+brew tap wix/brew
+brew install applesimutils
+
+Just above three commands for iOS setup
+
+---
+
+Now we can create simple app for testing:
+----
+
+reactnative.dev
+
+get started  //https://reactnative.dev/docs/getting-started
+
+click their own section   //https://reactnative.dev/docs/environment-setup   or click 
+
+click react native cli quick start
+
+npx react-native init projectname
+Eg:
+npx react-native init myapp
+
+Go inside project
+cd myapp
+
+run below command to add detox in project
+npm install detox --save-dev
+
+run below command to add mocha
+npm install mocha --save-dev --no-package-lock
+
+
+detox init -r mocha
+//Above command will also create below four files
+e2e\.mocharc.json
+e2e\init.js
+e2e\firstTest.spec.js
+.detoxrc.json
+
+
+
+
+.detoxrc.json - This is the main file
+
+specify binary path of app in apps.ios.binaryPath for ios
+
+specify binary path of app in apps.android.binaryPath for android
+
+
+Device detail we need to give in devices.simulator.device.type
+
+pressing r should reload ios app
+
+
+
+go to https://github.com/wix/Detox/
+go to examples
+we can see demo-pure-native-android or demo-native-ios
+Go to demo-react-native
+open detox.config.js
+Here we can see binary path and build command of release and debug build of ios and android
+
+open ios
+
+here we can see file with projectname.xcworkspace and projectname.xcodeproj
+
+open projectname.xcworkspace
+
+xcode->preferences -> workspace settings -> click advance -> build location -> custom ->click done
+
+Give below
+yarn ios
+
+now app will be available on ios/Build/Products/Debug-iphonesimulator
+projectname.app
+Eg: 
+detoxtest.app
+
+we can add this app path in apps.ios.binaryPath in .detoxrc.json   //Eg: ios/Build/Products/Debug-iphonesimulator/detoxtest.app
+Give iphone name in apps.devices.simulator.device.type  //Eg: iPhone 12
+Save the file
+
+
+
+To change the app view 
+go to App.js
+Clear existing data
+Add some react native command change the app element 
+
+Eg:
+import React, {useState} from 'react';
+import {Button, TextInput, View, SafeAreaView, Alert} from 'react-native';
+const App = () => {
+	const [input, setInput] = useState('');
+	return (
+		<SafeAreaView style={{flex: 1}}>
+		 <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
+                  <Text testID="title" style={{fontSize: 26, textAlign: 'center'}}>Hello there</Text>
+                  <TextInput
+	            testID="input"
+                    placeholder="Name"
+                    value={input}
+                    onChangeText={setInput}
+                    style={{padding: 5}}
+                   />
+                   <Button testID="button" title="Submit" onPress={() => Alert.alert(input)} />
+                  </View>
+                 </SafeAreaView>
+);
+};
+
+export default App;
+
+
+//I have also added testID. It should be unique.
+
+Once you add check the app again in ios
+
+
+
+
+
+
+Now we can write test
+
+Open e2e/firstTest.spec.js and clean and write the test here
+
+Eg:
+
+describe('Example', () => {
+  before(async () => {
+    await device.launchApp();
+  });
+
+  it('should have hello text', async () => {
+    await expect(element(by.id('title'))).toBeVisible();
+  });
+
+  const typedText = 'Hello Bitch';
+
+  it('should type hello bitch', async () => {
+    const input = element(byu.id('input'));
+    await input.typeText(typedText);
+  });
+
+ it('should press on the submit button', async () => {
+    await element(by.id('button')).tap();
+  });
+
+ it('should have a alert with typed text', async () => {
+    await expect(element(by.text(typedText)).atIndex(0)).toBeVisible();
+    await element(by.text("OK")).tap();
+  });
+
+});
+
+
+
+Give below command to run the test
+npx detox test -c ios
+
+
+
+---------
+
+
+Android:
+---------
+
+Go to docs folder   //https://github.com/wix/Detox/tree/master/docs
+
+open Introduction.Android.md            //https://github.com/wix/Detox/blob/master/docs/Introduction.Android.md
+
+Here we can find the document regarding the setup
+
+Getting started we already done
+
+Copy binaryPath and build from doc to apps.android.binaryPath and apps.android.build in .detoxrc.json which is in root of the project
+
+Eg:
+"android": {
+      "type": "android.apk",
+      "binaryPath": "android/app/build/outputs/apk/debug/app-debug.apk",
+      "build": "cd android && ./gradlew assembleDebug assembleAndroidTest -DtestBuildType=debug && cd .."      //build command has few commands which will run internally when giving build   //If you are using windows system use .\\gradlew instead of ./gradlew
+    }
+
+
+go inside android folder in project
+
+Give device name in devices.emulator.device.avdName //device name is Pixel_API_29
+
+Eg:
+ "emulator": {
+      "type": "android.emulator",
+      "device": {
+        "avdName": "Pixel_API_29"
+      }
+    }
+
+
+
+Now go to android in project
+in build.gradle add url below in in allprojects.repositories
+
+ maven {
+            // All of Detox' artifacts are provided via the npm module
+            url "$rootDir/../node_modules/detox/Detox-android"
+        }
+
+
+
+
+Now go inside android/app and open build.gradle //which is inside android/app
+add below under dependencies
+
+androidTestImplementation('com.wix:detox:+')
+
+
+add below under android.defaultConfig
+
+testBuildType System.getProperty('testBuildType', 'debug')  // This will later be used to control the test apk build type
+testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
+
+
+go to build.gradle which is in android
+Add below in buildscript.ext
+kotlinVersion = '1.5.30'         //check the version of kotlin in pc and give the correct version //Go to File->Settings->Language and Frameworks->Kotlin  click and check the version. It will show like this Eg:288-1.5.30-release-322.AS76786.7 Here the version is 1.5.30   ignore 288 or other  number
+
+Add below in buildscript.dependencies in same file
+classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
+
+create folder under android/app/src   //Folder can be in any name Eg: androidtest
+then create package. Eg: java/com/detoxtest
+
+create DetoxTest.java file inside above package
+
+copy from example and paste in DetoxTest.java
+It is available in path https://github.com/wix/Detox/blob/master/examples/demo-react-native/android/app/src/androidTest/java/com/example/DetoxTest.java
+
+Eg:
+// Replace "com.example" here and below with your app's package name from the top of MainActivity.java
+package com.example;
+
+import com.wix.detox.Detox;
+import com.wix.detox.config.DetoxConfig;
+
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
+import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.LargeTest;
+import androidx.test.rule.ActivityTestRule;
+
+@RunWith(AndroidJUnit4.class)
+@LargeTest
+public class DetoxTest {
+    // Replace 'MainActivity' with the value of android:name entry in
+    // <activity> in AndroidManifest.xml
+    @Rule
+    public ActivityTestRule<MainActivity> mActivityRule = new ActivityTestRule<>(MainActivity.class, false, false);
+
+    @Test
+    public void runDetoxTests() {
+        // This is optional - in case you've decided to integrate TestButler
+        // See https://github.com/wix/Detox/blob/master/docs/Introduction.Android.md#8-test-butler-support-optional
+        TestButlerProbe.assertReadyIfInstalled();
+
+        DetoxConfig detoxConfig = new DetoxConfig();
+        detoxConfig.idlePolicyConfig.masterTimeoutSec = 90;
+        detoxConfig.idlePolicyConfig.idleResourceTimeoutSec = 60;
+        detoxConfig.rnContextLoadTimeoutSec = (com.example.BuildConfig.DEBUG ? 180 : 60);
+
+        Detox.runTests(mActivityRule, detoxConfig);
+    }
+}
+
+
+
+
+Replace the package name in above
+
+
+Go to android/app/main/res
+create folder xml
+under xml folder, create file with name network_security_config.xml
+Give below in that file and save it          //This is for enabling http network call
+
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="true">10.0.2.2</domain>
+        <domain includeSubdomains="true">localhost</domain>
+    </domain-config>
+</network-security-config> 
+
+
+
+In android/app/src, open AndroidManifest.xml below under manifest.application
+android:networkSecurityConfig="@xml/network_security_config"
+
+
+Go to androd/app/, open build.gradle
+add below under buildTypes.release        //if we use progaud, we can use.
+proguardFile "${rootProject.projectDir}/../node_modules/detox/android/detox/proguard-rules-app.pro"
+
+
+
+Now we have to build and check using below
+
+List all devices using below command
+emulator -list-avds             //It will show available devices
+
+Use below command to launch the emulator
+emulator -avd deviceName
+Eg:
+emulator -avd Pixel_API_29
+
+
+
+
+
+Go to android. open settings.gradle and add below
+include ':detox'
+project(':detox').projectDir = new File(rootProject.projectDir, '../node_modules/detox/android/detox')
+
+
+Go to androd. open build.gradle add below in allprojects.repositories if below not exists. Mostly will be already available. so not required
+google()
+
+
+Use below command to build the project
+npx detox build -c android      //If get any error related to TestButlerProbe.assertReadyIfInstalled(), please command that line //TestButlerProbe.assertReadyIfInstalled(); in DetoxTest.java which we added. Then run the same command again
+
+Check whether the build is successfull or not
+
+If we face any issue, we can resolve. Faced issue related to some mocha library unavailable. then i installed mocha using the commd "npm install mocha --save-dev" .Then worked
+
+
+Once above one is done,
+Use below command to run the test
+npx detox test -c android
+
+if any error
+open one more command line or terminal, go to the project. Give below command
+npx react-native start
+Press r in keyboard
+//this can also help
+
