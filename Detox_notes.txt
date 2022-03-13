@@ -420,11 +420,46 @@ If we face any issue, we can resolve. Faced issue related to some mocha library 
 
 Once above one is done,
 Use below command to run the test
-npx detox test -c android
+npx detox test -c android             
 
 if any error
 open one more command line or terminal, go to the project. Give below command
 npx react-native start
 Press r in keyboard
 //this can also help
+
+
+
+-----
+
+
+For building in ios use below command
+npx detox build -c ios
+
+
+To run the test in ios use below command
+npx detox test -c ios
+
+
+-----
+
+under example we can see few samples   //in https://github.com/wix/Detox/tree/master/examples
+
+in document of demo-react-native we can document of read me for other //https://github.com/wix/Detox/tree/master/examples/demo-react-native
+Also in same under package.json we can see different command under scripts
+
+
+Under docs (in https://github.com/wix/Detox/tree/master/docs) we can see how we work/handle with different element.
+Also in the doc we can see location turn off/on, permission, handling with different element etc
+It has has how to mock url, user activity, notification etc
+It all has all instruction, troubleshooting, running in CICD
+This file(https://github.com/wix/Detox/blob/master/docs/APIRef.Matchers.md) also important
+This file (https://github.com/wix/Detox/blob/master/docs/APIRef.DeviceObjectAPI.md) also important
+For screenshot we can refer this doc (https://github.com/wix/Detox/blob/master/docs/APIRef.Screenshots.md)
+All those and other documents are available in files of docs
+
+----
+
+
+
 
